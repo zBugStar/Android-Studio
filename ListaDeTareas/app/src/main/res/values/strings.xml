@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ListaDeTareas</string>
+    <string name="tareas_pendientes">%1$d tareas pendientes</string>
 </resources>

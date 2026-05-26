@@ -3,8 +3,12 @@ package com.ejemplo.listadetareas
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ejemplo.listadetareas.databinding.ActivityMainBinding
+// SharedPreferences
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 
 class MainActivity : AppCompatActivity() {
@@ -19,8 +23,10 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        cargarLista()
         configurarRecyclerView()
         configurarBotones()
+        actualizarContador()
     }
 
     private fun configurarRecyclerView() {
@@ -64,6 +70,8 @@ class MainActivity : AppCompatActivity() {
 
         // TODO 8: Llamar a actualizarContador()
         actualizarContador()
+        guardarLista()
+
     }
 
     private fun eliminarTarea(posicion: Int) {
@@ -72,10 +80,11 @@ class MainActivity : AppCompatActivity() {
 
         // TODO 10: Notificar al adapter
         adapter.notifyItemRemoved(posicion)
-        adapter.notifyItemRangeChanged(posicion, listaTareas.size)
+        adapter.notifyItemRangeChanged(posicion, listaTareas.size - posicion)
 
         // TODO 11: Llamar a actualizarContador()
         actualizarContador()
+        guardarLista()
     }
 
     private fun actualizarContador() {
@@ -83,6 +92,35 @@ class MainActivity : AppCompatActivity() {
         val pendientes = listaTareas.count { !it.completada }
 
         // TODO 13: Actualizar binding.tvContador.text
-        binding.tvContador.text = "$pendientes tareas pendientes"
+        binding.tvContador.text = getString(R.string.tareas_pendientes, pendientes)
     }
+
+    // Crear funciones para que el SharedPreference guarde la lista de tareas y la cargue
+    // Guardar Lista
+    private fun guardarLista() {
+        val prefs = getSharedPreferences("MisPreferencias", MODE_PRIVATE)
+        val gson = Gson()
+        val json = gson.toJson(listaTareas)
+        prefs.edit {
+            putString("listaTareas", json)
+        }
+    }
+    // Cargar lista
+    private fun cargarLista() {
+        val prefs = getSharedPreferences("MisPreferencias", MODE_PRIVATE)
+        val gson = Gson()
+        val json = prefs.getString("listaTareas", null)
+
+        if (json != null) {
+            val type = object : TypeToken<MutableList<Tarea>>() {}.type
+            val listaGuardada: MutableList<Tarea> = gson.fromJson(json, type)
+            listaTareas.clear()
+            listaTareas.addAll(listaGuardada)
+            contadorId = listaTareas.maxOfOrNull { it.id } ?: 0
+        }
+    }
+
+
 }
+
+

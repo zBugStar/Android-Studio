@@ -4,9 +4,7 @@ plugins {
 
 android {
     namespace = "com.ejemplo.listadetareas"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.ejemplo.listadetareas"
@@ -46,4 +44,5 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation("com.google.code.gson:gson:2.10.1")
 }
